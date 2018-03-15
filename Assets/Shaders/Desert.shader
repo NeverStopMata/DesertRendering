@@ -171,7 +171,7 @@ Shader "Mata/Terrain/Standard"
 				return tex2D(_GlitterTex, _GlitterTex_ST.xy * uv.xy + _GlitterTex_ST.zw) ;
 			}
 
-			float GliterDistribution(float3 lightDir, float3 normal, float3 view, float2 uv,float3 pos)
+			float GliterDistribution(float3 lightDir, float3 normal, float3 view, float2 uv, float3 pos)
 			{
 
 
@@ -185,15 +185,15 @@ Shader "Mata/Terrain/Standard"
 				float3 noise = GetGlitterNoise(uv);
 
 				// A very random function to modify the glitter noise
-				float p1 = GetGlitterNoise(uv + float2(0,  view.x * 0.006)).r;
+				float p1 = GetGlitterNoise(uv + float2(0, view.x * 0.006)).r;
 				float p2 = GetGlitterNoise(uv + float2(0, view.y * 0.004)).g;
-	
+				
 
 				//float sum = (p1 + p2) * (p3 + p4);
 				float sum = 4 * p1 * p2;
 
 				float glitter = pow(sum, _Glitterness);
-				glitter = max(0, glitter * _GlitterMutiplyer - 0.5) * 2 * (1+sin(pos.x + _Time.y));
+				glitter = max(0, glitter * _GlitterMutiplyer - 0.5) * 2 * (1 + sin(pos.x + _Time.y));
 				float sparkle = glitter * specPow;
 
 				return sparkle;
@@ -265,7 +265,7 @@ Shader "Mata/Terrain/Standard"
 				float3x3 TBN = float3x3(normalize(i.worldTangent), normalize(i.worldBitangent), normalize(i.worldNormal));
 				float3x3  TBN_t = transpose(TBN);
 
-				fixed3 detailNormal = normalize( UnpackNormal(tex2D(_DetailNRMTexture, i.uv * _DetailNRMTexture_ST.xy + _DetailNRMTexture_ST.zw)));
+				fixed3 detailNormal = normalize(UnpackNormal(tex2D(_DetailNRMTexture, i.uv * _DetailNRMTexture_ST.xy + _DetailNRMTexture_ST.zw)));
 				fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
 				fixed3 worldView = normalize(i.worldView);
 				
@@ -273,7 +273,7 @@ Shader "Mata/Terrain/Standard"
 				fixed3 tangleNormal = UnpackNormal(mixedNormal);
 				detailNormal.xy *= _DetailNormalScale;
 				detailNormal.z = sqrt(1.0 - saturate(dot(detailNormal.xy, detailNormal.xy)));
-				detailNormal = mul(TBN_t,detailNormal);
+				detailNormal = mul(TBN_t, detailNormal);
 				tangleNormal.xy *= _NormalScale;
 				tangleNormal.z = sqrt(1.0 - saturate(dot(tangleNormal.xy, tangleNormal.xy)));
 				fixed3 worldNormal = mul(TBN_t, tangleNormal);
@@ -287,15 +287,14 @@ Shader "Mata/Terrain/Standard"
 				// Compute diffuse term
 				fixed3 nearLightColor = _LightColor0.rgb - fixed3(0.1, 0.5, 1.0) * (1.0 - WorldSpaceLightDir(i.pos).y);
 				fixed3 diffuse = 0, specular = 0;
-				if (max(0.0, dot(i.worldNormal, WorldSpaceLightDir(fixed4(0, 0, 0, 0)))) > 0 || true)
-				{
-					//diffuse = nearLightColor * mixedAlbedo *OrenNayarDiffuse(tangentLightDir,tangentViewDir,tangentNormal,_Roughness);// max(0.0, dot(tangentNormal, tangentLightDir));
-					diffuse = nearLightColor * mixedAlbedo * max(0.0, dot(worldNormal, worldLightDir));
-					specular = _OceanSpecularColor * mixedAlbedo * SpecularDistribution(worldLightDir, worldView, worldNormal, detailNormal)
-					* GGXGeometricShadowingFunction(worldLightDir, worldView, detailNormal, _Roughness)
-					* FresnelFunction(nearLightColor, worldLightDir, worldView)
-					/ abs(4 * max(0.1, dot(detailNormal, worldLightDir)) * max(0.1, dot(detailNormal, worldView)));;
-				}
+
+				//diffuse = nearLightColor * mixedAlbedo *OrenNayarDiffuse(tangentLightDir,tangentViewDir,tangentNormal,_Roughness);// max(0.0, dot(tangentNormal, tangentLightDir));
+				diffuse = nearLightColor * mixedAlbedo * max(0.0, dot(worldNormal, worldLightDir));
+				specular = _OceanSpecularColor * mixedAlbedo * SpecularDistribution(worldLightDir, worldView, worldNormal, detailNormal)
+				* GGXGeometricShadowingFunction(worldLightDir, worldView, detailNormal, _Roughness)
+				* FresnelFunction(nearLightColor, worldLightDir, worldView)
+				/ abs(4 * max(0.1, dot(detailNormal, worldLightDir)) * max(0.1, dot(detailNormal, worldView)));;
+				
 				
 				fixed shadow = SHADOW_ATTENUATION(i);
 				
@@ -308,7 +307,7 @@ Shader "Mata/Terrain/Standard"
 				float zDist = dot(_WorldSpaceCameraPos - i.worldPos, UNITY_MATRIX_V[2].xyz);
 				float fadeDist = UnityComputeShadowFadeDistance(i.worldPos, zDist);
 				shadow = UnityMixRealtimeAndBakedShadows(shadow, shadowFromLM, UnityComputeShadowFade(fadeDist));
-				fixed3 gliterRes = _GlitterColor.xyz * GliterDistribution(worldLightDir, detailNormal, worldView, i.uv,i.pos);
+				fixed3 gliterRes = _GlitterColor.xyz * GliterDistribution(worldLightDir, detailNormal, worldView, i.uv, i.pos);
 				fixed3 color = ambient + (specular + diffuse + gliterRes) * shadow + indirectDiffuse * _IndirectScale;
 				//color *=pow(i.pos.z,0.1);
 				UNITY_APPLY_FOG(i.fogCoord, color);

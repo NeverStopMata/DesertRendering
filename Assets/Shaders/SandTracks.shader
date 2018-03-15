@@ -19,8 +19,8 @@ Shader "Mata/visual_effect/SandTracks"
 		
 		_MinDist ("Tessellation MinDist", Range(1, 5)) = 3
 		_MaxDist ("Tessellation MaxDist", Range(5, 30)) = 15
-
-		_Delta("delta for computing normal for heightmap", Range(0.001, 0.01)) = 0.005
+		
+		_Delta ("delta for computing normal for heightmap", Range(0.001, 0.01)) = 0.005
 	}
 	SubShader
 	{
@@ -80,22 +80,23 @@ Shader "Mata/visual_effect/SandTracks"
 				float3 worldNormal: NORMAL;
 				float3 worldPos: TEXCOORD4;
 				LIGHTING_COORDS(5, 6)
+				//SHADOW_COORDS(5)
 			};
 			
 			
-
-			float3 GetNormalFromHeightmap(sampler2D Heightmap,float2 uv,float delta)
+			
+			float3 GetNormalFromHeightmap(sampler2D Heightmap, float2 uv, float delta)
 			{
-				float s0 = tex2D(Heightmap, uv + float2(-delta,0)).r;   
-				float s1 = tex2D(Heightmap, uv + float2( delta,0)).r;   
-				float s2 = tex2D(Heightmap, uv + float2(0,-delta)).r;   
-				float s3 = tex2D(Heightmap, uv + float2(0, delta)).r;   
-				float3 U = float3(-2*delta,0,s1-s0);   
-				float3 V = float3(0,-2*delta,s3-s2);   
-				float3 normal = normalize(cross(U,V));  
+				float s0 = tex2D(Heightmap, uv + float2(-delta, 0)).r;
+				float s1 = tex2D(Heightmap, uv + float2(delta, 0)).r;
+				float s2 = tex2D(Heightmap, uv + float2(0, -delta)).r;
+				float s3 = tex2D(Heightmap, uv + float2(0, delta)).r;
+				float3 U = float3(-2 * delta, 0, s1 - s0);
+				float3 V = float3(0, -2 * delta, s3 - s2);
+				float3 normal = normalize(cross(U, V));
 				return normal;
 			}
-
+			
 			v2f vert(a2v v)
 			{
 				v2f o;
@@ -110,8 +111,8 @@ Shader "Mata/visual_effect/SandTracks"
 				float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				o.worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
-				o.worldBitangent = cross(o.worldTangent,o.worldNormal);// * v.tangent.w;
-				
+				o.worldBitangent = cross(o.worldTangent, o.worldNormal);// * v.tangent.w;
+				//TRANSFER_SHADOW(o);
 				// pass lighting information to pixel shader
 				TRANSFER_VERTEX_TO_FRAGMENT(o);
 				return o;
@@ -194,24 +195,24 @@ Shader "Mata/visual_effect/SandTracks"
 				//	fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
 				o.rgb = c.rgb;
 				// Metallic and smoothness come from slider variables
-			
+				
 				o.a = 1.0;
-				fixed3 tangleNormal = GetNormalFromHeightmap(_Splat,i.uv,_Delta);
+				fixed3 tangleNormal = GetNormalFromHeightmap(_Splat, i.uv, _Delta);
 				float3x3 TBN = float3x3(normalize(i.worldTangent), normalize(i.worldBitangent), normalize(i.worldNormal));
 				float3x3  TBN_t = transpose(TBN);
 				// fixed4 texColor = tex2D(_, i.uv);
 				// fixed3 norm = UnpackNormal(tex2D(_Bump, i.uv));
-				 float3 worldPos = i.worldPos;
-				 fixed3 worldViewDir = normalize(UnityWorldSpaceViewDir(worldPos));
-				 fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
+				float3 worldPos = i.worldPos;
+				fixed3 worldViewDir = normalize(UnityWorldSpaceViewDir(worldPos));
+				fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
 				// //norm.y*=-1;//这个是作者实验的法线纹理是反向的，在这修正一下，正常的法线纹理需要注释掉
-			    fixed3 worldNormal = mul(TBN_t, tangleNormal);
+				fixed3 worldNormal = mul(TBN_t, tangleNormal);
 				
-				// fixed atten = LIGHT_ATTENUATION(i);
+				fixed  atten = LIGHT_ATTENUATION(i);
 				
-				// fixed3 ambi = UNITY_LIGHTMODEL_AMBIENT.xyz;
+			    fixed3 ambi = UNITY_LIGHTMODEL_AMBIENT.xyz;
 				
-				 fixed3 diff = _LightColor0.rgb * (1+dot(normalize(worldNormal), normalize(lightDir)))*0.5;
+				fixed3 diff = _LightColor0.rgb * saturate(dot(normalize(worldNormal), normalize(lightDir)));
 				
 				// fixed3 lightRefl = reflect(-lightDir, worldNormal);
 				// fixed3 spec = _LightColor0.rgb * pow(saturate(dot(normalize(lightRefl), normalize(worldViewDir))), _Specular) * _Gloss;
@@ -224,7 +225,7 @@ Shader "Mata/visual_effect/SandTracks"
 				// fragColor.a = 1.0f;
 				
 				//return o;
-				return fixed4(diff,1);
+				return fixed4(ambi + diff * atten, 1);
 			}
 			
 			ENDCG
