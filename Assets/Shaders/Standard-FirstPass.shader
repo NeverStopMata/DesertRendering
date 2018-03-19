@@ -176,7 +176,7 @@ Shader "Mata/Terrain/Standard"
 
 
 				
-				float specBase = saturate(1 - dot(normal, view) * 1);
+				float specBase = saturate(1 - dot(normal, view) * 2);
 				float specPow = pow(specBase, 10 / _GlitterRange);
 
 

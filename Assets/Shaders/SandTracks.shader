@@ -10,7 +10,7 @@ Shader "Mata/visual_effect/SandTracks"
 		
 		
 		_Tess ("Tessellation", Range(1, 32)) = 4
-		_Displacement ("Displacement", Range(0.0, 1.0)) = 0.5
+		_Displacement ("Displacement", Range(0.0, 1.0)) = 0.25
 		_SnowColor ("Snow Color", Color) = (1, 1, 1, 1)
 		_SnowTex ("Snow (RGB)", 2D) = "white" { }
 		_GroundColor ("Ground Color", Color) = (1, 1, 1, 1)
@@ -20,7 +20,7 @@ Shader "Mata/visual_effect/SandTracks"
 		_MinDist ("Tessellation MinDist", Range(1, 5)) = 3
 		_MaxDist ("Tessellation MaxDist", Range(5, 30)) = 15
 		
-		_Delta ("delta for computing normal for heightmap", Range(0.001, 0.01)) = 0.005
+		_Delta ("delta for computing normal for heightmap", Range(0.0001, 0.01)) = 0.001
 	}
 	SubShader
 	{
@@ -91,8 +91,8 @@ Shader "Mata/visual_effect/SandTracks"
 				float s1 = tex2D(Heightmap, uv + float2(delta, 0)).r;
 				float s2 = tex2D(Heightmap, uv + float2(0, -delta)).r;
 				float s3 = tex2D(Heightmap, uv + float2(0, delta)).r;
-				float3 U = float3(-2 * delta, 0, s1 - s0);
-				float3 V = float3(0, -2 * delta, s3 - s2);
+				float3 U = float3(2 * delta, 0, (s1 - s0)*_Displacement);
+				float3 V = float3(0, 2 * delta, (s3 - s2)*_Displacement);
 				float3 normal = normalize(cross(U, V));
 				return normal;
 			}
@@ -180,8 +180,8 @@ Shader "Mata/visual_effect/SandTracks"
 					v.normal = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
 					v.tangent = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
 					v.texcoord = vi[0].texcoord * bary.x + vi[1].texcoord * bary.y + vi[2].texcoord * bary.z;
-					float d = tex2Dlod(_Splat, v.texcoord).r * _Displacement;//置换纹理采样
-					v.vertex.xyz -= v.normal * d;//置换顶点
+					float d = (tex2Dlod(_Splat, v.texcoord).r-0.5) * _Displacement;//置换纹理采样
+					v.vertex.xyz += v.normal * d;//置换顶点
 					v2f o = vert(v);
 					return o;
 				}
