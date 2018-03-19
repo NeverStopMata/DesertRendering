@@ -4,24 +4,25 @@ using UnityEngine;
 
 public class DrawWithMouse : MonoBehaviour {
     public Camera _camera;
-    public Shader _drawshader,_initshader;
+    public Shader _drawshader,_initshader,_recoveryshader;
 
     private CustomRenderTexture _splatmap;
-    private Material _snowMaterial, _drawMaterial,_initMaterial;
+    private Material _snowMaterial, _drawMaterial,_initMaterial, _recoveryMaterial;
     private RaycastHit _hit;
     private Vector4 lastHitCord;
     // Use this for initialization
     void Start () {
         _drawMaterial = new Material (_drawshader);
         _drawMaterial.SetVector ("_Color", Color.red);
-        _drawMaterial.SetVector("_TrackInf", new Vector4(1000,0,0,0));
+        _drawMaterial.SetVector("_TrackInf", new Vector4(4000,0,0,0));
         _snowMaterial = GetComponent<MeshRenderer> ().material;
-        _splatmap = new CustomRenderTexture (1024, 1024, RenderTextureFormat.ARGBFloat);
+        _splatmap = new CustomRenderTexture (4096, 4096, RenderTextureFormat.ARGBFloat);
 
         //初始化splatmap 为一张（0.5，0，0，1.0）颜色的贴图；
         _initMaterial = new Material(_initshader);
+        _recoveryMaterial = new Material(_recoveryshader);
         RenderTexture temp = RenderTexture.GetTemporary(_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
-        Graphics.Blit(_splatmap, temp);
+        Graphics.Blit(_splatmap, temp, _recoveryMaterial);
         Graphics.Blit(temp, _splatmap, _initMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
 
         _snowMaterial.SetTexture ("_Splat", _splatmap);
@@ -44,21 +45,32 @@ public class DrawWithMouse : MonoBehaviour {
                     _drawMaterial.SetVector("_LastCoordinate", lastHitCord);
                     lastHitCord = newHitCod;
                     RenderTexture temp = RenderTexture.GetTemporary(_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
-                    Graphics.Blit(_splatmap, temp);
-                    Graphics.Blit(temp, _splatmap, _drawMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
+                    Graphics.Blit(_splatmap, temp, _drawMaterial);
+                    Graphics.Blit(temp, _splatmap, _recoveryMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
                     RenderTexture.ReleaseTemporary(temp);
                 }
-               
+                else
+                {
+                    RenderTexture temp = RenderTexture.GetTemporary(_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
+                    Graphics.Blit(_splatmap, temp, _recoveryMaterial);
+                    Graphics.Blit(temp, _splatmap); //将上一帧绘制出来的splat作为这一帧的输入tex
+                    RenderTexture.ReleaseTemporary(temp);
+                }
 
 
             }
+
         }
         else
         {
+            RenderTexture temp = RenderTexture.GetTemporary(_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
+            Graphics.Blit(_splatmap, temp, _recoveryMaterial);
+            Graphics.Blit(temp, _splatmap); //将上一帧绘制出来的splat作为这一帧的输入tex
+            RenderTexture.ReleaseTemporary(temp);
             lastHitCord = Vector4.one;//one 表示null
         }
     }
     private void OnGUI () {
-        GUI.DrawTexture (new Rect (0, 0, 256, 256), _splatmap, ScaleMode.ScaleToFit, false, 1);
+       GUI.DrawTexture (new Rect (0, 0, 256, 256), _splatmap, ScaleMode.ScaleToFit, false, 1);
     }
 }

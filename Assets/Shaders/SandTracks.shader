@@ -9,7 +9,7 @@ Shader "Mata/visual_effect/SandTracks"
 	{
 		
 		
-		_Tess ("Tessellation", Range(1, 32)) = 4
+		_Tess ("Tessellation", Range(1, 8196)) = 256
 		_Displacement ("Displacement", Range(0.0, 1.0)) = 0.25
 		_SnowColor ("Snow Color", Color) = (1, 1, 1, 1)
 		_SnowTex ("Snow (RGB)", 2D) = "white" { }
@@ -17,10 +17,10 @@ Shader "Mata/visual_effect/SandTracks"
 		_GroundTex ("Ground (RGB)", 2D) = "white" { }
 		_Splat ("SplatMap", 2D) = "black" { }
 		
-		_MinDist ("Tessellation MinDist", Range(1, 5)) = 3
-		_MaxDist ("Tessellation MaxDist", Range(5, 30)) = 15
+		_MinDist ("Tessellation MinDist", Range(1, 1000)) = 3
+		_MaxDist ("Tessellation MaxDist", Range(1, 1000)) = 15
 		
-		_Delta ("delta for computing normal for heightmap", Range(0.0001, 0.01)) = 0.001
+		_Delta ("delta for computing normal for heightmap", Range(0.00001, 0.01)) = 0.0001
 	}
 	SubShader
 	{
@@ -91,8 +91,8 @@ Shader "Mata/visual_effect/SandTracks"
 				float s1 = tex2D(Heightmap, uv + float2(delta, 0)).r;
 				float s2 = tex2D(Heightmap, uv + float2(0, -delta)).r;
 				float s3 = tex2D(Heightmap, uv + float2(0, delta)).r;
-				float3 U = float3(2 * delta, 0, (s1 - s0)*_Displacement);
-				float3 V = float3(0, 2 * delta, (s3 - s2)*_Displacement);
+				float3 U = float3(2 * delta, 0, (s1 - s0) * _Displacement);
+				float3 V = float3(0, 2 * delta, (s3 - s2) * _Displacement);
 				float3 normal = normalize(cross(U, V));
 				return normal;
 			}
@@ -180,7 +180,7 @@ Shader "Mata/visual_effect/SandTracks"
 					v.normal = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
 					v.tangent = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
 					v.texcoord = vi[0].texcoord * bary.x + vi[1].texcoord * bary.y + vi[2].texcoord * bary.z;
-					float d = (tex2Dlod(_Splat, v.texcoord).r-0.5) * _Displacement;//置换纹理采样
+					float d = (tex2Dlod(_Splat, v.texcoord).r - 0.5) * _Displacement;//置换纹理采样
 					v.vertex.xyz += v.normal * d;//置换顶点
 					v2f o = vert(v);
 					return o;
@@ -188,15 +188,6 @@ Shader "Mata/visual_effect/SandTracks"
 			#endif
 			fixed4 frag(v2f i): COLOR
 			{
-				
-				fixed4 o;
-				half amount = tex2Dlod(_Splat, float4(i.uv, 0, 0)).r;
-				fixed4 c = lerp(tex2D(_SnowTex, i.uv) * _SnowColor, tex2D(_GroundTex, i.uv) * _GroundColor, amount);
-				//	fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
-				o.rgb = c.rgb;
-				// Metallic and smoothness come from slider variables
-				
-				o.a = 1.0;
 				fixed3 tangleNormal = GetNormalFromHeightmap(_Splat, i.uv, _Delta);
 				float3x3 TBN = float3x3(normalize(i.worldTangent), normalize(i.worldBitangent), normalize(i.worldNormal));
 				float3x3  TBN_t = transpose(TBN);
@@ -207,10 +198,11 @@ Shader "Mata/visual_effect/SandTracks"
 				fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
 				// //norm.y*=-1;//这个是作者实验的法线纹理是反向的，在这修正一下，正常的法线纹理需要注释掉
 				fixed3 worldNormal = mul(TBN_t, tangleNormal);
+				//fixed3 worldNormal = i.worldNormal;
 				
 				fixed  atten = LIGHT_ATTENUATION(i);
 				
-			    fixed3 ambi = UNITY_LIGHTMODEL_AMBIENT.xyz;
+				fixed3 ambi = UNITY_LIGHTMODEL_AMBIENT.xyz;
 				
 				fixed3 diff = _LightColor0.rgb * saturate(dot(normalize(worldNormal), normalize(lightDir)));
 				
@@ -224,7 +216,6 @@ Shader "Mata/visual_effect/SandTracks"
 				// fragColor.rgb = float3((ambi + (diff + spec) * atten) * texColor);
 				// fragColor.a = 1.0f;
 				
-				//return o;
 				return fixed4(ambi + diff * atten, 1);
 			}
 			

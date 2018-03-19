@@ -73,16 +73,16 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _Delta: 0.0033
+    - _Delta: 0.00333
     - _DetailNormalMapScale: 1
-    - _Displacement: 0.393
+    - _Displacement: 0.5
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _MaxDist: 21.5
+    - _MaxDist: 20
     - _Metallic: 0
-    - _MinDist: 5
+    - _MinDist: 1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
