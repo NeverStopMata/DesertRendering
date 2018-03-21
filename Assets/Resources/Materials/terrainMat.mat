@@ -103,7 +103,7 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DetailNormalScale: 1.35
+    - _DetailNormalScale: 1.28
     - _DetailRoughness: 0.158
     - _DstBlend: 0
     - _GlitterMutiplyer: 9.8

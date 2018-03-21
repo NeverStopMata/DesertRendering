@@ -195,7 +195,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!154 &1364897400
 TerrainCollider:
   m_ObjectHideFlags: 0
@@ -315,8 +315,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 5.14
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -338,13 +338,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1842668879}
-  m_LocalRotation: {x: 0.2943739, y: 0, z: 0, w: 0.9556904}
-  m_LocalPosition: {x: 0, y: 1.9, z: -6.13}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -3.45, y: 2.37, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 34.24, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1877108899
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,3 +448,6 @@ MonoBehaviour:
   _drawshader: {fileID: 4800000, guid: 05fbb51188ca9e548840f3d476d9df72, type: 3}
   _initshader: {fileID: 4800000, guid: d62352c598d6fb64e9f79e87af744e4f, type: 3}
   _recoveryshader: {fileID: 4800000, guid: 75a7fefa59abf5047b30cbe4f5aa0c06, type: 3}
+  _tile: 0
+  _TrackSize: 1
+  _TrackStrength: 0.03

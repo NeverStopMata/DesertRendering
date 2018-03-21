@@ -9,7 +9,7 @@ Shader "Mata/visual_effect/SandTracks"
 	{
 		
 		
-		_Tess ("Tessellation", Range(1, 8196)) = 256
+		_Tess ("Tessellation", Range(1, 1024)) = 256
 		_Displacement ("Displacement", Range(0.0, 1.0)) = 0.25
 		_SnowColor ("Snow Color", Color) = (1, 1, 1, 1)
 		_SnowTex ("Snow (RGB)", 2D) = "white" { }
@@ -83,6 +83,23 @@ Shader "Mata/visual_effect/SandTracks"
 				//SHADOW_COORDS(5)
 			};
 			
+			float3 calcNormal(float2 texcoord)
+			{
+				const float3 off = float3(-0.01f, 0, 0.01f); // texture resolution to sample exact texels
+				const float2 size = float2(0.01, 0.0); // size of a single texel in relation to world units
+				
+				float s01 = tex2Dlod(_Splat, float4(texcoord.xy - off.xy, 0, 0)).x * _Displacement;
+				float s21 = tex2Dlod(_Splat, float4(texcoord.xy - off.zy, 0, 0)).x * _Displacement;
+				float s10 = tex2Dlod(_Splat, float4(texcoord.xy - off.yx, 0, 0)).x * _Displacement;
+				float s12 = tex2Dlod(_Splat, float4(texcoord.xy - off.yz, 0, 0)).x * _Displacement;
+				
+				float3 va = normalize(float3(size.xy, s21 - s01));
+				float3 vb = normalize(float3(size.yx, s12 - s10));
+				
+				//return float3(s01, s12, 0);
+				return normalize(cross(va, vb));
+			}
+			
 			
 			
 			float3 GetNormalFromHeightmap(sampler2D Heightmap, float2 uv, float delta)
@@ -102,7 +119,7 @@ Shader "Mata/visual_effect/SandTracks"
 				v2f o;
 				
 				o.pos = UnityObjectToClipPos(v.vertex);
-				o.uv = TRANSFORM_TEX(v.texcoord, _Splat);
+				o.uv = v.texcoord;
 				o.worldPos = mul(UNITY_MATRIX_M, v.vertex);
 				//为切线空间创建一个旋转矩阵
 				TANGENT_SPACE_ROTATION;
@@ -112,6 +129,8 @@ Shader "Mata/visual_effect/SandTracks"
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				o.worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
 				o.worldBitangent = cross(o.worldTangent, o.worldNormal);// * v.tangent.w;
+
+				
 				//TRANSFER_SHADOW(o);
 				// pass lighting information to pixel shader
 				TRANSFER_VERTEX_TO_FRAGMENT(o);
@@ -180,8 +199,10 @@ Shader "Mata/visual_effect/SandTracks"
 					v.normal = vi[0].normal * bary.x + vi[1].normal * bary.y + vi[2].normal * bary.z;
 					v.tangent = vi[0].tangent * bary.x + vi[1].tangent * bary.y + vi[2].tangent * bary.z;
 					v.texcoord = vi[0].texcoord * bary.x + vi[1].texcoord * bary.y + vi[2].texcoord * bary.z;
-					float d = (tex2Dlod(_Splat, v.texcoord).r - 0.5) * _Displacement;//置换纹理采样
+					//tmpUV += fixed2(0.5,0.5);
+					float d = (tex2Dlod(_Splat, fixed4(v.texcoord.xy, 0, 0)).r - 0.5) * _Displacement;//置换纹理采样
 					v.vertex.xyz += v.normal * d;//置换顶点
+					v.normal = cross(normalize(vi[1].vertex - vi[0].vertex), normalize(vi[2].vertex - vi[0].vertex));
 					v2f o = vert(v);
 					return o;
 				}

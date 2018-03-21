@@ -45,15 +45,31 @@
 			fixed4 frag(v2f i): SV_Target
 			{
 				// sample the texture
-				float4 lastHeight = tex2D(_MainTex,i.uv);
-				lastHeight.y -= 0.01;
-				if(lastHeight.y <=0)
+				float4 lastHeight = tex2D(_MainTex, i.uv);
+				lastHeight.y -= 0.00;
+				if (lastHeight.y > 0)
 				{
-					lastHeight.y = 0;
-					lastHeight.x = 0.5 + (lastHeight.x - 0.5) * 0.95;
+					return lastHeight;
 				}
-				
-				return lastHeight;
+				lastHeight.y = 0;
+				if(lastHeight.x > 0.5)
+				{
+					lastHeight.x -= 0.001;
+					if(lastHeight.x < 0.5)
+						lastHeight.x = 0.5;
+					return lastHeight;
+				}
+				else if(lastHeight.x < 0.5)
+				{
+					lastHeight.x += 0.001;
+					if(lastHeight.x > 0.5)
+						lastHeight.x = 0.5;
+					return lastHeight;
+				}
+				else
+				{
+					return lastHeight;
+				}
 			}
 			ENDCG
 			

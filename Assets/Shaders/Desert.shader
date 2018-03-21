@@ -61,8 +61,13 @@ Shader "Mata/Terrain/Standard"
 			
 			CGPROGRAM
 			
+			//#pragma hull hull
+			//#pragma domain domain
+			//#include "Tessellation.cginc"
+
+
 			#pragma multi_compile_fog
-			#pragma target 3.0
+			#pragma target 5.0
 			// Upgrade NOTE: excluded shader from OpenGL ES 2.0 because it uses non-square matrices
 			#pragma exclude_renderers gles
 			
@@ -104,17 +109,17 @@ Shader "Mata/Terrain/Standard"
 			float4 _GlitterColor;
 			float _GlitterRange;
 			float _GlitterMutiplyer;
-			struct a2v
-			{
-				float4 vertex: POSITION;
-				float3 normal: NORMAL;
-				float4 tangent: TANGENT;
-				float2 uv: TEXCOORD0;
+			// struct a2v
+			// {
+			// 	float4 vertex: POSITION;
+			// 	float3 normal: NORMAL;
+			// 	float4 tangent: TANGENT;
+			// 	float2 uv: TEXCOORD0;
 				
-				float2 uvLM_Ctrl: TEXCOORD1;  // Not prefixing '_Contorl' with 'uv' allows a tighter packing of interpolators, which is necessary to support directional lightmap.
+			// 	float2 uvLM_Ctrl: TEXCOORD1;  // Not prefixing '_Contorl' with 'uv' allows a tighter packing of interpolators, which is necessary to support directional lightmap.
 				
-				UNITY_FOG_COORDS(2)
-			};
+			// 	UNITY_FOG_COORDS(2)
+			// };
 			
 			struct v2f
 			{
@@ -231,13 +236,13 @@ Shader "Mata/Terrain/Standard"
 				float Gs = (SmithL * SmithV);
 				return Gs;
 			}
-			v2f vert(a2v v)
+			v2f vert(appdata_full v)
 			{
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.worldPos = mul(UNITY_MATRIX_M, v.vertex);
-				o.uv = v.uv;
-				o.uvLM_Ctrl = v.uvLM_Ctrl;
+				o.uv = v.texcoord;
+				o.uvLM_Ctrl = v.texcoord1;
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);//(0,1,0)
 				o.worldTangent = UnityObjectToWorldDir(v.tangent.xyz);//(1,0,0)
 				o.worldBitangent = cross(o.worldTangent, o.worldNormal);
