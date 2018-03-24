@@ -317,7 +317,8 @@ Shader "Mata/Terrain/Desert"
 				//color *=pow(i.pos.z,0.1);
 				UNITY_APPLY_FOG(i.fogCoord, color);
 				return fixed4(color, 1.0);
-				//return fixed4(i.worldNormal,1);
+				//return fixed4( frac(i.uv * _Splat0_ST.xy + _Splat0_ST.zw) ,0, 1.0);
+				return fixed4(i.worldNormal,1);
 			}
 			
 			ENDCG

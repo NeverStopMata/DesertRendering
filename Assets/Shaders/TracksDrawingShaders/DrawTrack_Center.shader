@@ -1,4 +1,4 @@
-﻿Shader "Mata/visual_effect/DrawtracksSmoothly"
+﻿Shader "Mata/visual_effect/Drawtracks_Center"
 {
 	Properties
 	{
@@ -23,7 +23,7 @@
 			
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma StandardSpecular fullforwardshadows addshadow  nolightmap
+			//#pragma StandardSpecular fullforwardshadows addshadow  nolightmap
 			// make fog work
 			#pragma multi_compile_fog
 			
@@ -38,7 +38,6 @@
 			struct v2f
 			{
 				float2 uv: TEXCOORD0;
-				float2 uv1: TEXCOORD0;
 				float4 vertex: SV_POSITION;
 			};
 			
@@ -69,22 +68,32 @@
 				float4 _Coordinate;
 				
 				float4 _LastCoordinate;
-				_Coordinate = _Coordinates[int(_CoordsNum-1)];
-
+				_Coordinate = _Coordinates[0];
+				//float dist4test = distance(i.uv, _Coordinate.xy-_Coordinate.zw * 0.1);
+				//Fif(dist4test<0.05)
+				//	return fixed4(i.uv.x,i.uv.y,0,1);
 				// return fixed4(_Coordinate.z,_Coordinate.w,0,1);//debug
-				_LastCoordinate = _Coordinates[int(clamp(_CoordsNum-2,0,2))];
-
-				float origHeight = tex2D(_MainTex, i.uv).r;
+				_LastCoordinate = _Coordinates[1];
+				
+				float origHeight;
 				float2 v1 = normalize(i.uv - _Coordinate.xy);
 				float2 v2 = normalize(i.uv - _LastCoordinate.xy);
 				float2 v0 = normalize(_Coordinate.xy - _LastCoordinate.xy);
 				float dotVal1 = dot(v0, v1);
 				float dotVal2 = dot(v0, v2);
 				float dist = 100;
-				
-				
 				if (_CoordsNum == 1)
 				{
+					origHeight = tex2D(_MainTex, i.uv).r;
+				}
+				else
+				{
+					origHeight = tex2D(_MainTex, i.uv + float2(0.5, 0.5) - _LastCoordinate.xy).r;
+				}
+				
+				if(_CoordsNum == 1)
+				{
+					
 					dist = distance(i.uv, _Coordinate.xy);
 				}
 				else if(dotVal1 >= 0)
@@ -140,7 +149,7 @@
 					//drwaCol = _Color * (increaseHeight  + 0.5);
 				}
 				
-				drwaCol.y = 1;
+				//drwaCol.y = 1;
 				
 				return saturate(drwaCol);
 			}
