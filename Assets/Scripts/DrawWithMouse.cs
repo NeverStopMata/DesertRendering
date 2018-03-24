@@ -6,6 +6,7 @@ using UnityEngine;
 public class DrawWithMouse : MonoBehaviour {
     public Camera _camera;
     public Shader _drawshader,_initshader,_recoveryshader;
+    public Texture2D _stampTex;
     public int _tile;
 
     [Range(0.1f,2.0f)]
@@ -23,6 +24,8 @@ public class DrawWithMouse : MonoBehaviour {
         _drawMaterial.SetVector ("_Color", Color.red);
         _drawMaterial.SetFloat("_TrackSize", _TrackSize);
         _drawMaterial.SetFloat("_TrackStrength", _TrackStrength);
+        _drawMaterial.SetTexture("_StampTex", _stampTex);
+        _stampTex.wrapMode = TextureWrapMode.Clamp;
         _snowMaterial = GetComponent<MeshRenderer> ().material;
         _splatmap = new CustomRenderTexture (4096, 4096, RenderTextureFormat.ARGBFloat);
         _tile = 1;
@@ -53,9 +56,11 @@ public class DrawWithMouse : MonoBehaviour {
                     //if (lastHitCord == Vector4.one)
                     //    lastHitCord = newHitCod;
                     _drawMaterial.SetVector("_LastCoordinate", lastHitCord);
+                    _drawMaterial.SetTexture("_StampTex", _stampTex);
                     lastHitCord = newHitCod;
                     RenderTexture temp = RenderTexture.GetTemporary(_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
-                    Graphics.Blit(_splatmap, temp, _drawMaterial);
+                    Graphics.Blit(_splatmap, temp, _drawMaterial);//
+                    //Graphics.DrawTexture()
                     Graphics.Blit(temp, _splatmap, _recoveryMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
                     RenderTexture.ReleaseTemporary(temp);
                 }

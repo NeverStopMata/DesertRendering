@@ -1,6 +1,6 @@
 // Unity built-in shader source. Copyright (c) 2016 Unity Technologies. MIT license (see license.txt)
 
-Shader "Mata/Terrain/Standard"
+Shader "Mata/Terrain/Desert"
 {
 	Properties
 	{
@@ -279,7 +279,7 @@ Shader "Mata/Terrain/Standard"
 				detailNormal.xy *= _DetailNormalScale;
 				detailNormal.z = sqrt(1.0 - saturate(dot(detailNormal.xy, detailNormal.xy)));
 				detailNormal = mul(TBN_t, detailNormal);
-				tangleNormal.xy *= _NormalScale;
+				tangleNormal.xy *= _NormalScale * (3*i.worldNormal.y-2);//越陡峭的地方 沙子的静态纹路就越浅
 				tangleNormal.z = sqrt(1.0 - saturate(dot(tangleNormal.xy, tangleNormal.xy)));
 				fixed3 worldNormal = mul(TBN_t, tangleNormal);
 				
@@ -290,7 +290,7 @@ Shader "Mata/Terrain/Standard"
 				
 				
 				// Compute diffuse term
-				fixed3 nearLightColor = _LightColor0.rgb - fixed3(0.1, 0.5, 1.0) * (1.0 - WorldSpaceLightDir(i.pos).y);
+				fixed3 nearLightColor = _LightColor0.rgb - fixed3(0.1, 0.5, 1.0) * clamp(1.0 - 2*WorldSpaceLightDir(i.pos).y,0.3,1.0);
 				fixed3 diffuse = 0, specular = 0;
 
 				//diffuse = nearLightColor * mixedAlbedo *OrenNayarDiffuse(tangentLightDir,tangentViewDir,tangentNormal,_Roughness);// max(0.0, dot(tangentNormal, tangentLightDir));
@@ -317,7 +317,7 @@ Shader "Mata/Terrain/Standard"
 				//color *=pow(i.pos.z,0.1);
 				UNITY_APPLY_FOG(i.fogCoord, color);
 				return fixed4(color, 1.0);
-				//return fixed4(GetGlitterNoise(i.uv),1);
+				//return fixed4(i.worldNormal,1);
 			}
 			
 			ENDCG
