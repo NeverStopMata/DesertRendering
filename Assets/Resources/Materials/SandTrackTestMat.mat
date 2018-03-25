@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: SandTrackTestMat
-  m_Shader: {fileID: 4800000, guid: d966028cb90459d40a508e46942510d9, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0cb14d99fe435b74898401690ba858b4, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -81,7 +81,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _HeightOffset: 0.5
-    - _MaxDist: 12
+    - _MaxDist: 24
     - _Metallic: 0
     - _MinDist: 1
     - _Mode: 0

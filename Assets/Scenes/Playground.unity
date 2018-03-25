@@ -829,7 +829,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1877108899}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.05, z: 0}
+  m_LocalPosition: {x: 0, y: 1.47, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -849,8 +849,8 @@ MonoBehaviour:
   _camera: {fileID: 0}
   _drawshader: {fileID: 4800000, guid: 98c6715e32348af48ab726a240309fba, type: 3}
   _initshader: {fileID: 4800000, guid: d62352c598d6fb64e9f79e87af744e4f, type: 3}
-  _TrackSize: 0.338
-  _TrackStrength: 0.014
+  _TrackSize: 0.5
+  _TrackStrength: 0.01
 --- !u!1 &2123194909
 GameObject:
   m_ObjectHideFlags: 0
