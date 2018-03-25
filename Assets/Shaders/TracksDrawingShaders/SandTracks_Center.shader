@@ -4,7 +4,7 @@ Shader "Mata/visual_effect/SandTracks_Center"
 {
 	// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 	// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
-	
+	//test for using git inside the VSC
 	Properties
 	{
 		

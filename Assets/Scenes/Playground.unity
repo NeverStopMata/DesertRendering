@@ -458,9 +458,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1276749263}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f088e27803526d49a46223de81f3ea7, type: 3}
+  m_Script: {fileID: 11500000, guid: e0af0ed7cc5b0204a9bd377645e964e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _SampleAreaSize: 5
   drawDelta: 0.01
 --- !u!1 &1292523381
 GameObject:
