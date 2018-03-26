@@ -75,7 +75,7 @@ Material:
     - _Cutoff: 0.5
     - _Delta: 0.001
     - _DetailNormalMapScale: 1
-    - _Displacement: 0.5
+    - _Displacement: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
