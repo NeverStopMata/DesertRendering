@@ -3,14 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SurfaceBreaker_Center : MonoBehaviour {
-    public float _SampleAreaSize;
+    public GameObject surface;
     // Use this for initialization
-    private Queue<Vector4> BreakInfList;
+    //private Queue<Vector4> BreakInfList;
+
+    private Vector4 BreakInf1;
+    private Vector4 BreakInf2;
     private Vector2 _prevDrawPos;
+    private float sampleAreaSize;
     public float drawDelta;
     void Start () {
-        BreakInfList = new Queue<Vector4> ();
+        //BreakInfList = new Queue<Vector4> ();
         drawDelta = 0.005f;
+        sampleAreaSize = surface.GetComponent<SurfaceTrackController>()._SampleAreaSize;
+        BreakInf1 = Vector4.zero;
+        BreakInf2 = Vector4.zero;
+
         //_SampleAreaSize = 1.0f;
     }
 
@@ -42,17 +50,11 @@ public class SurfaceBreaker_Center : MonoBehaviour {
             if (Vector2.Distance (_prevDrawPos, tmpPos2D) >= drawDelta) {
 
                 _prevDrawPos = tmpPos2D;
-                BreakInfList.Enqueue (newBreakInf);
+                BreakInf2 = BreakInf1;
+                BreakInf1 = newBreakInf;
+                //BreakInfList.Enqueue (newBreakInf);
 
-                if (BreakInfList.Count > 3) {
-                    BreakInfList.Dequeue ();
-                }
-                List<Vector4> CoordList = new List<Vector4> ();
-                foreach (var item in BreakInfList) {
-                    CoordList.Add ((item - new Vector4 (newBreakInf.x, newBreakInf.y, 0, 0)) / _SampleAreaSize + new Vector4 (0.5f, 0.5f, 0, 0));
-                }
-                CoordList.Reverse ();
-                texDraw.DrawStep (CoordList.ToArray (), newBreakInf);
+                texDraw.DrawStep (BreakInf1, BreakInf2,Vector4.zero);
                 
                 //  Debug.Log(CoordsList.Count);
 
