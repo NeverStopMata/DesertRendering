@@ -16,7 +16,9 @@ public class SurfaceTrackController : MonoBehaviour {
     private Material _sandMaterial, _drawMaterial, _initMaterial;
     private RaycastHit _hit;
     private Vector4 lastHitCord;
+    private Rect debugShowing;
 
+    private RenderTexture temp;
     void Start () {
         if (_camera == null)
             _camera = Camera.main;
@@ -28,52 +30,55 @@ public class SurfaceTrackController : MonoBehaviour {
         _sandMaterial = GetComponent<MeshRenderer> ().material;
         _splatmap = new CustomRenderTexture (4096, 4096, RenderTextureFormat.ARGBFloat);
         _initMaterial = new Material (_initshader);
-        RenderTexture temp = RenderTexture.GetTemporary (_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
+        temp = RenderTexture.GetTemporary (_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
         Graphics.Blit (_splatmap, temp);
         Graphics.Blit (temp, _splatmap, _initMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
         _sandMaterial.SetTexture ("_Splat", _splatmap);
-        RenderTexture.ReleaseTemporary (temp);
+        //RenderTexture.ReleaseTemporary (temp);
         lastHitCord = Vector4.one; //one 表示null
-    }
+        debugShowing = new Rect (0, 0, 256, 256);
+        //temp = new RenderTexture (_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
+}
 
-    // Update is called once per frame
-    void Update () {
-        if (Input.GetKey (KeyCode.Mouse0)) {
-            if (Physics.Raycast (_camera.ScreenPointToRay (Input.mousePosition), out _hit)) {
+// Update is called once per frame
+void Update () {
+    // if (Input.GetKey (KeyCode.Mouse0)) {
+    //     if (Physics.Raycast (_camera.ScreenPointToRay (Input.mousePosition), out _hit)) {
 
-                Vector4 newHitCod = new Vector4 (_hit.textureCoord.x, _hit.textureCoord.y, 0, 0);
-                if (newHitCod != lastHitCord) {
+    //         Vector4 newHitCod = new Vector4 (_hit.textureCoord.x, _hit.textureCoord.y, 0, 0);
+    //         if (newHitCod != lastHitCord) {
 
-                    Vector4[] test = new Vector4[2];
-                    test[0] = newHitCod;
-                    test[1] = lastHitCord;
-                    //DrawStep (test);
-                    lastHitCord = newHitCod;
-                }
+    //             Vector4[] test = new Vector4[2];
+    //             test[0] = newHitCod;
+    //             test[1] = lastHitCord;
+    //             //DrawStep (test);
+    //             lastHitCord = newHitCod;
+    //         }
 
-            }
-        } else {
-            lastHitCord = Vector4.one; //one 表示null
-        }
-    }
-    public void DrawStep (Vector4[] coordsList, Vector4 ActorWorldPos) {
-        int arrayLength = coordsList.Length;
-        if (arrayLength == 0)
-            return;
+    //     }
+    // } else {
+    //     lastHitCord = Vector4.one; //one 表示null
+    // }
+}
+public void DrawStep (Vector4[] coordsList, Vector4 ActorWorldPos) {
+    int arrayLength = coordsList.Length;
+    if (arrayLength == 0)
+        return;
 
-        _drawMaterial.SetVectorArray ("_Coordinates", coordsList);
-        _drawMaterial.SetFloat ("_CoordsNum", coordsList.Length);
-        _sandMaterial.SetFloat ("_SampleAreaSize", 5);
-        _sandMaterial.SetVector ("_ActorWorldPos", ActorWorldPos);
-        //Debug.Log(coordsList.Length);
-        RenderTexture temp = RenderTexture.GetTemporary (_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
-        Graphics.Blit (_splatmap, temp); //
-        //Graphics.DrawTexture()
-        Graphics.Blit (temp, _splatmap, _drawMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
-        RenderTexture.ReleaseTemporary (temp);
-    }
+    _drawMaterial.SetVectorArray ("_Coordinates", coordsList);
+    _drawMaterial.SetFloat ("_CoordsNum", coordsList.Length);
+    _sandMaterial.SetFloat ("_SampleAreaSize", 5);
+    _sandMaterial.SetVector ("_ActorWorldPos", ActorWorldPos);
+    //Debug.Log(coordsList.Length);
 
-    private void OnGUI () {
-        GUI.DrawTexture (new Rect (0, 0, 256, 256), _splatmap, ScaleMode.ScaleToFit, false, 1);
-    }
+   // RenderTexture temp = RenderTexture.GetTemporary (_splatmap.width, _splatmap.height, 0, RenderTextureFormat.ARGBFloat);
+    Graphics.Blit (_splatmap, temp); //
+    //Graphics.DrawTexture()
+    Graphics.Blit (temp, _splatmap, _drawMaterial); //将上一帧绘制出来的splat作为这一帧的输入tex
+   // RenderTexture.ReleaseTemporary (temp);
+}
+
+private void OnGUI () {
+    //GUI.DrawTexture (debugShowing, _splatmap, ScaleMode.ScaleToFit, false, 1);
+}
 }

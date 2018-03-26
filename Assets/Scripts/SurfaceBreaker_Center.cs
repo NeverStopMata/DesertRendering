@@ -53,6 +53,7 @@ public class SurfaceBreaker_Center : MonoBehaviour {
                 }
                 CoordList.Reverse ();
                 texDraw.DrawStep (CoordList.ToArray (), newBreakInf);
+                
                 //  Debug.Log(CoordsList.Count);
 
             }
