@@ -126,85 +126,82 @@
 				
 				
 				
-				dist = pow(dist, 2);
-				float waveLength = 3.1415926 * _TrackSize / 1000;
-				float frequence = 2000 / _TrackSize;
-				
-				
-				if (dist > waveLength)//距离较远 没影响到
+				//dist = pow(dist, 2);
+				float waveLength = 3.1415926 * _TrackSize;
+				float frequence = 2 / _TrackSize;
+				float dist2Coord = distance(i.uv, _Coordinate.xy);
+				if (dist2Coord > waveLength && dist < waveLength * 3)
 				{
-					origSandInf.y -= 0.02;
-					if (origSandInf.y > 0.4)
-					{
-						return  origSandInf;
-					}
-					else //if(origSandInf.y > 0)
-					{
-						return  origSandInf;
-						// origSandInf.x = 0.5 + 0.9 * (origSandInf.x - 0.5);
-						// origSandInf.y = 0.0;
-						// return origSandInf;
-						// float3 tangleNormal = GetNormalFromHeightmap(_MainTex, i.uv+ uvOffset, 0.003, 0.5);
-						
-						
-						// float2 probeVec = -normalize(tangleNormal.xy);
-						// float2 orthgnProbeVec = float2(0.86, 0.5);
-						// float distrubuteDist = 0.0005;
-						
-						
-						
-						// float highDelta = tex2D(_MainTex, i.uv+ uvOffset + probeVec * distrubuteDist).x - origSandInf.x;
-						// float lowDelta = origSandInf.x - tex2D(_MainTex, i.uv+ uvOffset - probeVec * distrubuteDist).x;
-						// origSandInf.x = origSandInf.x + 0.25 * highDelta - 0.3 * lowDelta;
-						// origSandInf.x += 0.05 * clamp(0.5 - origSandInf.x, 0, 0.5);
-						// return origSandInf;
-					}
-					// else
-					// {
-						// 	origSandInf.x = 0.5 + 0.9*(origSandInf.x - 0.5);
-						// 	origSandInf.y = 0.0;
-						// 	return origSandInf;
-						// }
-					}
-					
-					
-					//计算沙子最终的高度信息
-					
-					float increaseHeight = -_TrackStrength * cos(frequence * dist);
-					fixed4 drwaCol;
-					
-					//下压区域
-					if (dist < waveLength / 4)
-					{
-						drwaCol = _Color * (increaseHeight * 5 + 0.5);
-					}
-					
-					
-					//因为再分配产生的上升
-					else if (dist >= waveLength / 4 && dist <= waveLength)
-					{
-						if(dist >= waveLength / 2)
-							increaseHeight += 0.5 * _TrackStrength * cos(frequence * dist) + 0.5 * _TrackStrength;
-						if(dotVal1 >= 0.5 && _LastCoordinate.w != 1)//前端
-						{
-							
-							increaseHeight += _TrackStrength * (cos(2 * 3.1415926 * dotVal1) + 1) * (1 - cos(4 * frequence * dist / 3 - 2 * 3.1415926 / 3));
-						}
-						//float distrubuteRate = GetDepressRatio(v1,_TrackInf.x);
-						//if(increaseHeight+0.5 > origHeight)
-						//drwaCol = _Color * (increaseHeight *saturate(1.0-0*pow(origHeight-0.5,2))  + origHeight);
-						//drwaCol = _Color * (increaseHeight + origHeight);
-						drwaCol = _Color * (increaseHeight + 0.5);
-					}
-					
-					drwaCol.y = 1;
-					
-					return saturate(drwaCol);
+					return  origSandInf;
 				}
-				ENDCG
+				else if(dist >= waveLength * 3)// && dist < waveLength * 5)//距离较远 没影响到
+				{
+					
+					
+					float3 tangleNormal = GetNormalFromHeightmap(_MainTex, i.uv + uvOffset, 0.003, 0.5);
+					
+					
+					float2 probeVec = -normalize(tangleNormal.xy);
+					float2 orthgnProbeVec = float2(0.86, 0.5);
+					float distrubuteDist = 0.0005;
+					
+					
+					
+					float highDelta = tex2D(_MainTex, i.uv + uvOffset +probeVec * distrubuteDist).x - origSandInf.x;
+					float lowDelta = origSandInf.x - tex2D(_MainTex, i.uv + uvOffset -probeVec * distrubuteDist).x;
+					if (tangleNormal.y < 0.2)
+						origSandInf.x = origSandInf.x + 0.5 * highDelta - 0.5 * lowDelta;
+					
+					
+					// if(dist >= waveLength * 50)//距离较远 没影响到
+					// {
+					// 	origSandInf.x = 0.5 + 0.98*(0.5 - origSandInf.x);
+					// }
+					//origSandInf.x += 0.05 * clamp(0.5 - origSandInf.x, 0, 0.5);
+					return origSandInf;
+				}
 				
+				
+				
+				
+				
+				//计算沙子最终的高度信息
+				
+				float increaseHeight = -_TrackStrength * cos(frequence * dist);
+				fixed4 drwaCol;
+				
+				//下压区域
+				if (dist < waveLength / 4)
+				{
+					drwaCol = _Color * (increaseHeight * 5 + 0.5);
+				}
+				
+				
+				//因为再分配产生的上升
+				else if (dist >= waveLength / 4 && dist <= waveLength)
+				{
+					if(dist >= waveLength / 2)
+						increaseHeight += 0.5 * _TrackStrength * cos(frequence * dist) + 0.5 * _TrackStrength;
+					if(dotVal1 >= 0.5 && _LastCoordinate.w != 1)//前端
+					{
+						
+						increaseHeight += _TrackStrength * (cos(2 * 3.1415926 * dotVal1) + 1) * (1 - cos(4 * frequence * dist / 3 - 2 * 3.1415926 / 3));
+					}
+					//float distrubuteRate = GetDepressRatio(v1,_TrackInf.x);
+					//if(increaseHeight+0.5 > origHeight)
+					//drwaCol = _Color * (increaseHeight *saturate(1.0-0*pow(origHeight-0.5,2))  + origHeight);
+					//drwaCol = _Color * (increaseHeight + origHeight);
+					drwaCol = _Color * (increaseHeight + 0.5);
+				}
+				
+				//drwaCol.y = 1;
+				
+				return saturate(drwaCol);
 			}
+			ENDCG
+			
 		}
 	}
-	
-	
+}
+
+

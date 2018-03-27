@@ -850,9 +850,9 @@ MonoBehaviour:
   _drawshader: {fileID: 4800000, guid: 98c6715e32348af48ab726a240309fba, type: 3}
   _initshader: {fileID: 4800000, guid: d62352c598d6fb64e9f79e87af744e4f, type: 3}
   _splatmap: {fileID: 8400000, guid: b74678342f8cf90458e4f0f833ca9ba7, type: 2}
-  _TrackSize: 0.2
-  _TrackStrength: 0.01
-  _SampleAreaSize: 10
+  _TrackSize: 0.0057
+  _TrackStrength: 0.0108
+  _SampleAreaSize: 20
   _HeightOffset: 0
 --- !u!1 &2123194909
 GameObject:

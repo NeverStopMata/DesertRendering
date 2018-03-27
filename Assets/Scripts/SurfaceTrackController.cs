@@ -8,12 +8,12 @@ public class SurfaceTrackController : MonoBehaviour {
     public Camera _camera;
     public Shader _drawshader, _initshader;
     public RenderTexture _splatmap; //,temp;
-    [Range (0.1f, 2.0f)]
+    [Range (0.001f, 0.01f)]
     public float _TrackSize;
     [Range (0.0f, 0.05f)]
     public float _TrackStrength;
 
-    [Range (1.0f, 10.0f)]
+    [Range (1.0f, 20.0f)]
     public float _SampleAreaSize;
 
     [Range (-0.5f, 0.5f)]
